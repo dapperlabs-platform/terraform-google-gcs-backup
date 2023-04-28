@@ -117,8 +117,8 @@ resource "google_storage_bucket_iam_member" "transfer_source_bucket_get" {
   ]
 }
 
-resource "google_storage_transfer_job" "private_bucket_nightly_backup" {
-  description = "Nightly backup of private bucket"
+resource "google_storage_transfer_job" "bucket_nightly_backup" {
+  description = "Nightly backup of a bucket"
   project     = data.google_project.project.name
 
   transfer_spec {
@@ -150,9 +150,9 @@ resource "google_storage_transfer_job" "private_bucket_nightly_backup" {
 
   depends_on = [
     google_project_iam_member.transfer_buckets_list,
-    google_storage_bucket_iam_member.transfer_private_backup_bucket,
-    google_storage_bucket_iam_member.transfer_private_backup_bucket_get,
-    google_storage_bucket_iam_member.transfer_private_bucket,
-    google_storage_bucket_iam_member.transfer_private_bucket_get
+    google_storage_bucket_iam_member.transfer_backup_bucket,
+    google_storage_bucket_iam_member.transfer_backup_bucket_get,
+    google_storage_bucket_iam_member.transfer_bucket,
+    google_storage_bucket_iam_member.transfer_bucket_get
   ]
 }
