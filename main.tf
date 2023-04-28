@@ -80,37 +80,37 @@ resource "google_storage_bucket_iam_binding" "bindings" {
 
 resource "google_project_iam_member" "transfer_buckets_list" {
   project = data.google_project.project.name
-  role    = "projects/${data.google_project.project.name}/roles/dapper.storageTransfer.serviceAccount"
+  role    = google_project_iam_custom_role.storagetransfer_serviceaccount_project.id
   member  = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   depends_on = [
     google_project_iam_custom_role.storagetransfer_serviceaccount_project
   ]
 }
 
-resource "google_storage_bucket_iam_member" "transfer_private_backup_bucket" {
+resource "google_storage_bucket_iam_member" "transfer_backup_bucket" {
   bucket = google_storage_bucket.bucket.name
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
 }
 
-resource "google_storage_bucket_iam_member" "transfer_private_backup_bucket_get" {
+resource "google_storage_bucket_iam_member" "transfer_backup_bucket_get" {
   bucket = google_storage_bucket.bucket.name
-  role   = "projects/${data.google_project.project.name}/roles/dapper.storageTransfer.bucket.get"
+  role   = google_project_iam_custom_role.storagetransfer_bucket_get.id
   member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   depends_on = [
     google_project_iam_custom_role.storagetransfer_bucket_get
   ]
 }
 
-resource "google_storage_bucket_iam_member" "transfer_private_bucket" {
+resource "google_storage_bucket_iam_member" "transfer_source_bucket" {
   bucket = var.source_bucket_name
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
 }
 
-resource "google_storage_bucket_iam_member" "transfer_private_bucket_get" {
+resource "google_storage_bucket_iam_member" "transfer_source_bucket_get" {
   bucket = var.source_bucket_name
-  role   = "projects/${data.google_project.project.name}/roles/dapper.storageTransfer.bucket.get"
+  role   = google_project_iam_custom_role.storagetransfer_bucket_get.id
   member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
   depends_on = [
     google_project_iam_custom_role.storagetransfer_bucket_get
