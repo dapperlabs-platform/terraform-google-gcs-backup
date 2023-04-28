@@ -152,7 +152,7 @@ resource "google_storage_transfer_job" "bucket_nightly_backup" {
     google_project_iam_member.transfer_buckets_list,
     google_storage_bucket_iam_member.transfer_backup_bucket,
     google_storage_bucket_iam_member.transfer_backup_bucket_get,
-    google_storage_bucket_iam_member.transfer_bucket,
-    google_storage_bucket_iam_member.transfer_bucket_get
+    google_storage_bucket_iam_member.transfer_source_bucket,
+    google_storage_bucket_iam_member.transfer_source_bucket_get
   ]
 }
