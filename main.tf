@@ -4,17 +4,17 @@ locals {
     ? ""
     : join("-", [var.prefix, lower(var.location), ""])
   )
-  name_title = replace(title(var.name), "-", "")
+  name_title      = replace(title(var.name), "-", "")
   security_prefix = "${lower(substr(local.name_title, 0, 1))}${substr(local.name_title, 1, 120)}"
   iam_roles = merge([
     for role_name, members in var.iam : {
-      for member in members : 
-          "${role_name}-${member}" => {
-            role_name = role_name
-            member    = member
-          }
+      for member in members :
+      "${role_name}-${member}" => {
+        role_name = role_name
+        member    = member
+      }
     }
-   ]...)
+  ]...)
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -127,7 +127,7 @@ resource "google_storage_bucket_iam_member" "transfer_source_bucket_get" {
 }
 
 resource "google_storage_transfer_job" "bucket_nightly_backup" {
-  description = "Nightly backup of a bucket"
+  description = "Backup of bucket ${var.source_bucket_name}"
   project     = data.google_project.project.name
 
   transfer_spec {
@@ -143,17 +143,35 @@ resource "google_storage_transfer_job" "bucket_nightly_backup" {
     }
   }
 
-  schedule {
-    schedule_start_date {
-      year  = 2023
-      month = 4
-      day   = 1
-    }
-    start_time_of_day {
-      hours   = 23
-      minutes = 30
-      seconds = 0
-      nanos   = 0
+  dynamic "schedule" {
+    for_each = var.schedule == null ? [] : [""]
+    content {
+      dynamic "schedule_start_date" {
+        for_each = var.schedule.schedule_start_date == null ? [] : [""]
+        content {
+          year  = var.schedule.schedule_start_date.year
+          month = var.schedule.schedule_start_date.month
+          day   = var.schedule.schedule_start_date.day
+        }
+      }
+      dynamic "schedule_end_date" {
+        for_each = var.schedule.schedule_end_date == null ? [] : [""]
+        content {
+          year  = var.schedule.schedule_end_date.year
+          month = var.schedule.schedule_end_date.month
+          day   = var.schedule.schedule_end_date.day
+        }
+      }
+      dynamic "start_time_of_day" {
+        for_each = var.schedule.start_time_of_day == null ? [] : [""]
+        content {
+          hours   = var.schedule.start_time_of_day.hours
+          minutes = var.schedule.start_time_of_day.minutes
+          seconds = var.schedule.start_time_of_day.seconds
+          nanos   = var.schedule.start_time_of_day.nanos
+        }
+      }
+      repeat_interval = var.schedule.repeat_interval
     }
   }
 
