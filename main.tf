@@ -6,6 +6,15 @@ locals {
   )
   name_title = replace(title(var.name), "-", "")
   security_prefix = "${lower(substr(local.name_title, 0, 1))}${substr(local.name_title, 1, 120)}"
+  iam_roles = merge([
+    for role_name, members in local.iam : {
+      for member in members :
+          "${role_name}-${member}" => {
+            role_name = rolename
+            member    =  member
+          }
+    }
+   ])
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -72,10 +81,10 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket_iam_member" "members" {
-  for_each = var.iam
+  for_each = local.iam_roles
   bucket   = google_storage_bucket.bucket.name
-  role     = each.key
-  member   = each.value
+  role     = each.value.role_name
+  member   = each.value.member
 }
 
 resource "google_project_iam_member" "transfer_buckets_list" {
