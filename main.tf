@@ -10,8 +10,8 @@ locals {
     for role_name, members in var.iam : {
       for member in members :
           "${role_name}-${member}" => {
-            role_name = rolename
-            member    =  member
+            role_name = role_name
+            member    = member
           }
     }
    ])
