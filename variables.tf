@@ -117,3 +117,36 @@ variable "source_bucket_name" {
   description = "Name of the bucket to backup."
   type        = string
 }
+
+variable "schedule" {
+  description = "Schedule for the backup job."
+  type = object({
+    schedule_start_date = object({
+      year  = number
+      month = number
+      day   = number
+    })
+    schedule_end_date = object({
+      year  = number
+      month = number
+      day   = number
+    })
+    start_time_of_day = object({
+      hours   = number
+      minutes = number
+      seconds = number
+      nanos   = number
+    })
+    repeat_interval = string
+  })
+  default = {
+    schedule_start_date = {
+      year  = 2021
+      month = 1
+      day   = 1
+    }
+    schedule_end_date = null
+    start_time_of_day = null
+    repeat_interval   = null
+  }
+}

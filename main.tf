@@ -4,17 +4,17 @@ locals {
     ? ""
     : join("-", [var.prefix, lower(var.location), ""])
   )
-  name_title = replace(title(var.name), "-", "")
+  name_title      = replace(title(var.name), "-", "")
   security_prefix = "${lower(substr(local.name_title, 0, 1))}${substr(local.name_title, 1, 120)}"
   iam_roles = merge([
     for role_name, members in var.iam : {
-      for member in members : 
-          "${role_name}-${member}" => {
-            role_name = role_name
-            member    = member
-          }
+      for member in members :
+      "${role_name}-${member}" => {
+        role_name = role_name
+        member    = member
+      }
     }
-   ]...)
+  ]...)
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -127,7 +127,7 @@ resource "google_storage_bucket_iam_member" "transfer_source_bucket_get" {
 }
 
 resource "google_storage_transfer_job" "bucket_nightly_backup" {
-  description = "Nightly backup of a bucket"
+  description = "Backup of bucket ${var.source_bucket_name}"
   project     = data.google_project.project.name
 
   transfer_spec {
@@ -143,19 +143,7 @@ resource "google_storage_transfer_job" "bucket_nightly_backup" {
     }
   }
 
-  schedule {
-    schedule_start_date {
-      year  = 2023
-      month = 4
-      day   = 1
-    }
-    start_time_of_day {
-      hours   = 23
-      minutes = 30
-      seconds = 0
-      nanos   = 0
-    }
-  }
+  schedule = var.schedule
 
   depends_on = [
     google_project_iam_member.transfer_buckets_list,
