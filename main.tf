@@ -75,7 +75,7 @@ resource "google_storage_bucket_iam_member" "members" {
   for_each = var.iam
   bucket   = google_storage_bucket.bucket.name
   role     = each.key
-  members  = each.value
+  member   = each.value
 }
 
 resource "google_project_iam_member" "transfer_buckets_list" {
