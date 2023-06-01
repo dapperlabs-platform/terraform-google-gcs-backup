@@ -143,7 +143,37 @@ resource "google_storage_transfer_job" "bucket_nightly_backup" {
     }
   }
 
-  schedule = var.schedule
+  dynamic "schedule" {
+    for_each = var.schedule == null ? [] : [""]
+    content {
+      dynamic "schedule_start_date" {
+        for_each = var.schedule.schedule_start_date == null ? [] : [""]
+        content {
+          year  = var.schedule.schedule_start_date.year
+          month = var.schedule.schedule_start_date.month
+          day   = var.schedule.schedule_start_date.day
+        }
+      }
+      dynamic "schedule_end_date" {
+        for_each = var.schedule.schedule_end_date == null ? [] : [""]
+        content {
+          year  = var.schedule.schedule_end_date.year
+          month = var.schedule.schedule_end_date.month
+          day   = var.schedule.schedule_end_date.day
+        }
+      }
+      dynamic "start_time_of_day" {
+        for_each = var.schedule.start_time_of_day == null ? [] : [""]
+        content {
+          hours   = var.schedule.start_time_of_day.hours
+          minutes = var.schedule.start_time_of_day.minutes
+          seconds = var.schedule.start_time_of_day.seconds
+          nanos   = var.schedule.start_time_of_day.nanos
+        }
+      }
+      repeat_interval = var.schedule.repeat_interval
+    }
+  }
 
   depends_on = [
     google_project_iam_member.transfer_buckets_list,
